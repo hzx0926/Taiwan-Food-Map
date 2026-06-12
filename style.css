@@ -1,12 +1,13 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
 }
 
 .header {
   padding: 10px;
   text-align: center;
   background: #ffcc66;
+  font-weight: bold;
 }
 
 #map {
