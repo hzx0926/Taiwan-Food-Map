@@ -2,33 +2,27 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>台灣美食地圖（OSM版）</title>
+  <title>台灣美食地圖 Uber版</title>
 
   <link rel="stylesheet" href="style.css"/>
 
-  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 
 <body>
 
-  <div class="header">
-  🍜 台灣美食地圖（免費版）
-  <br/><br/>
-
-  <input id="searchBox" placeholder="搜尋：滷肉飯 / 咖啡 / 火鍋" />
+<div class="header">
+  🍜 Taiwan Food Map
+  <input id="searchBox" placeholder="搜尋：咖啡 / 火鍋 / 滷肉飯">
   <button onclick="searchFood()">搜尋</button>
 </div>
 
 <div id="map"></div>
-  
-  <div class="header">
-    🍜 台灣美食地圖（免費版）
-  </div>
 
-  <div id="map"></div>
+<div id="list"></div>
 
-  <script src="app.js"></script>
+<script src="app.js"></script>
+
 </body>
 </html>
