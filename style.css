@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.header {
+  padding: 10px;
+  text-align: center;
+  background: #ffcc66;
+}
+
+#map {
+  height: 90vh;
+  width: 100%;
+}
