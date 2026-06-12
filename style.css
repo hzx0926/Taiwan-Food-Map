@@ -28,6 +28,21 @@ button {
   width: 100%;
 }
 
+#favorites {
+  padding: 10px;
+  background: #fff3f3;
+  border-top: 2px solid #ffaaaa;
+}
+
+.fav-card {
+  background: white;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+
 #list {
   height: 35vh;
   overflow-y: auto;
