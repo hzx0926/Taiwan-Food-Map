@@ -5,6 +5,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 let markers = [];
+let placesData = [];
 let userLat = 25.0330;
 let userLng = 121.5654;
 
@@ -19,61 +20,84 @@ navigator.geolocation.getCurrentPosition(async (pos) => {
     .addTo(map)
     .bindPopup("📍 你的位置");
 
-  await loadRestaurants(userLat, userLng, "");
+  await loadRestaurants();
 });
 
-// 🔍 搜尋按鈕
+// 🔍 搜尋
 async function searchFood() {
-  const keyword = document.getElementById("searchBox").value;
-  await loadRestaurants(userLat, userLng, keyword);
+  await loadRestaurants();
 }
 
-// 🍜 Overpass API 查詢
-async function loadRestaurants(lat, lng, keyword) {
+// 🍜 抓餐廳
+async function loadRestaurants() {
 
-  // 清除舊 markers
+  const keyword = document.getElementById("searchBox").value;
+
+  // 清除舊資料
   markers.forEach(m => map.removeLayer(m));
   markers = [];
+  placesData = [];
 
-  let filter = "";
+  let filter = "restaurant";
 
-  // 關鍵字轉 OSM 類型
   if (keyword.includes("咖啡")) filter = "cafe";
-  else if (keyword.includes("速食") || keyword.includes("炸")) filter = "fast_food";
-  else filter = "restaurant";
+  else if (keyword.includes("炸") || keyword.includes("速食")) filter = "fast_food";
 
   const query = `
   [out:json];
   (
-    node["amenity"="${filter}"](around:1000,${lat},${lng});
+    node["amenity"="${filter}"](around:1000,${userLat},${userLng});
   );
   out;
   `;
 
-  const url = "https://overpass-api.de/api/interpreter";
-
-  const res = await fetch(url, {
+  const res = await fetch("https://overpass-api.de/api/interpreter", {
     method: "POST",
     body: query
   });
 
   const data = await res.json();
 
-  data.elements.forEach(el => {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  data.elements.forEach((el) => {
     if (!el.lat || !el.lon) return;
 
     const name = el.tags?.name || "未知餐廳";
 
-    // 🔎 關鍵字過濾（中文模糊搜尋）
+    // 🔎 中文關鍵字過濾
     if (keyword && !name.includes(keyword) && keyword !== "") return;
 
-    const marker = L.marker([el.lat, el.lon]).addTo(map);
+    const place = {
+      name,
+      lat: el.lat,
+      lng: el.lon,
+      type: el.tags?.amenity || "restaurant"
+    };
 
-    marker.bindPopup(`
-      <b>${name}</b><br/>
-      類型：${el.tags?.amenity || "restaurant"}
-    `);
+    placesData.push(place);
+
+    // 📍 marker
+    const marker = L.marker([place.lat, place.lng]).addTo(map);
+    marker.bindPopup(`<b>${place.name}</b>`);
 
     markers.push(marker);
+
+    // 🧾 Uber風格卡片
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <h3>${place.name}</h3>
+      <small>${place.type}</small>
+    `;
+
+    card.onclick = () => {
+      map.setView([place.lat, place.lng], 18);
+      marker.openPopup();
+    };
+
+    list.appendChild(card);
   });
 }
