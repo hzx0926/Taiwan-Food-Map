@@ -1,35 +1,51 @@
 const map = L.map('map').setView([25.0330, 121.5654], 15);
 
-// OpenStreetMap 底圖
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap'
 }).addTo(map);
 
 let markers = [];
+let userLat = 25.0330;
+let userLng = 121.5654;
 
-// 📍 使用者定位
+// 📍 定位
 navigator.geolocation.getCurrentPosition(async (pos) => {
-  const lat = pos.coords.latitude;
-  const lng = pos.coords.longitude;
+  userLat = pos.coords.latitude;
+  userLng = pos.coords.longitude;
 
-  map.setView([lat, lng], 16);
+  map.setView([userLat, userLng], 16);
 
-  L.marker([lat, lng])
+  L.marker([userLat, userLng])
     .addTo(map)
     .bindPopup("📍 你的位置");
 
-  await loadRestaurants(lat, lng);
+  await loadRestaurants(userLat, userLng, "");
 });
 
-// 🍜 用 Overpass API 抓餐廳
-async function loadRestaurants(lat, lng) {
+// 🔍 搜尋按鈕
+async function searchFood() {
+  const keyword = document.getElementById("searchBox").value;
+  await loadRestaurants(userLat, userLng, keyword);
+}
+
+// 🍜 Overpass API 查詢
+async function loadRestaurants(lat, lng, keyword) {
+
+  // 清除舊 markers
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  let filter = "";
+
+  // 關鍵字轉 OSM 類型
+  if (keyword.includes("咖啡")) filter = "cafe";
+  else if (keyword.includes("速食") || keyword.includes("炸")) filter = "fast_food";
+  else filter = "restaurant";
 
   const query = `
   [out:json];
   (
-    node["amenity"="restaurant"](around:1000,${lat},${lng});
-    node["amenity"="cafe"](around:1000,${lat},${lng});
-    node["amenity"="fast_food"](around:1000,${lat},${lng});
+    node["amenity"="${filter}"](around:1000,${lat},${lng});
   );
   out;
   `;
@@ -47,6 +63,9 @@ async function loadRestaurants(lat, lng) {
     if (!el.lat || !el.lon) return;
 
     const name = el.tags?.name || "未知餐廳";
+
+    // 🔎 關鍵字過濾（中文模糊搜尋）
+    if (keyword && !name.includes(keyword) && keyword !== "") return;
 
     const marker = L.marker([el.lat, el.lon]).addTo(map);
 
