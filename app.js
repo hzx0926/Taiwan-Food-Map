@@ -8,6 +8,7 @@ let markers = [];
 let placesData = [];
 let userLat = 25.0330;
 let userLng = 121.5654;
+let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
 // 📍 定位
 navigator.geolocation.getCurrentPosition(async (pos) => {
