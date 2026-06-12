@@ -13,6 +13,7 @@ body {
   width: 60%;
   padding: 8px;
   border-radius: 8px;
+  border: 1px solid #ccc;
 }
 
 button {
@@ -21,36 +22,32 @@ button {
   background: #ff8800;
   color: white;
   border-radius: 8px;
-}
-
-#map {
-  height: 55vh;
-  width: 100%;
-}
-
-#favorites {
-  padding: 10px;
-  background: #fff3f3;
-  border-top: 2px solid #ffaaaa;
-}
-
-.fav-card {
-  background: white;
-  padding: 10px;
-  margin: 5px 0;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   cursor: pointer;
 }
 
+#map {
+  height: 50vh;
+  width: 100%;
+}
+
+/* 餐廳列表 */
 #list {
-  height: 35vh;
+  height: 25vh;
   overflow-y: auto;
   padding: 10px;
   background: #f7f7f7;
 }
 
-/* 🍔 Uber風格卡片 */
+/* 收藏區 */
+#favorites {
+  height: 20vh;
+  overflow-y: auto;
+  padding: 10px;
+  background: #fff3f3;
+  border-top: 2px solid #ffaaaa;
+}
+
+/* 卡片 */
 .card {
   background: white;
   padding: 10px;
@@ -67,4 +64,13 @@ button {
 
 .card small {
   color: gray;
+}
+
+/* 收藏按鈕 */
+.fav-btn {
+  margin-top: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
