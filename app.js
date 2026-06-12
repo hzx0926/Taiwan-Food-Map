@@ -10,7 +10,7 @@ let placesData = [];
 let userLat = 25.0330;
 let userLng = 121.5654;
 
-// ⭐ 收藏資料
+// ⭐ 收藏
 let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
 // 📍 定位
@@ -44,7 +44,7 @@ async function loadRestaurants() {
   let filter = "restaurant";
 
   if (keyword.includes("咖啡")) filter = "cafe";
-  else if (keyword.includes("炸") || keyword.includes("速食")) filter = "fast_food";
+  else if (keyword.includes("炸") || keyword.includes("速食") || keyword.includes("宵夜")) filter = "fast_food";
 
   const query = `
   [out:json];
@@ -85,7 +85,6 @@ async function loadRestaurants() {
 
     markers.push(marker);
 
-    // 🧾 卡片
     const card = document.createElement("div");
     card.className = "card";
 
@@ -98,13 +97,11 @@ async function loadRestaurants() {
       </button>
     `;
 
-    // 點卡片 → 地圖移動
     card.onclick = () => {
       map.setView([place.lat, place.lng], 18);
       marker.openPopup();
     };
 
-    // ❤️ 收藏
     card.querySelector(".fav-btn").onclick = (e) => {
       e.stopPropagation();
       toggleFavorite(place);
@@ -116,7 +113,7 @@ async function loadRestaurants() {
   renderFavorites();
 }
 
-// ❤️ 收藏 / 取消收藏
+// ❤️ 收藏
 function toggleFavorite(place) {
   const index = favorites.findIndex(f => f.name === place.name);
 
@@ -132,12 +129,11 @@ function toggleFavorite(place) {
   renderFavorites();
 }
 
-// 🔎 是否收藏
 function isFavorite(name) {
   return favorites.some(f => f.name === name);
 }
 
-// ❤️ 渲染收藏區
+// ❤️ 收藏列表
 function renderFavorites() {
   const fav = document.getElementById("favorites");
 
@@ -157,5 +153,48 @@ function renderFavorites() {
     };
 
     fav.appendChild(div);
+  });
+}
+
+// 🤖 AI推薦
+function aiRecommend() {
+  const input = document.getElementById("aiBox").value;
+  const type = analyzeIntent(input);
+  showAI(type);
+}
+
+// 🧠 AI理解
+function analyzeIntent(text) {
+  text = text.toLowerCase();
+
+  if (text.includes("咖啡")) return "cafe";
+  if (text.includes("宵夜") || text.includes("炸") || text.includes("便宜")) return "fast_food";
+  if (text.includes("火鍋")) return "restaurant";
+  if (text.includes("早餐")) return "restaurant";
+
+  return "restaurant";
+}
+
+// 🤖 AI顯示
+function showAI(type) {
+  const list = document.getElementById("list");
+  list.innerHTML = "<h3>🤖 AI推薦結果</h3>";
+
+  const result = placesData.filter(p => p.type === type || type === "restaurant");
+
+  result.slice(0, 8).forEach(place => {
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <h3>🤖 ${place.name}</h3>
+      <small>${place.type}</small>
+    `;
+
+    div.onclick = () => {
+      map.setView([place.lat, place.lng], 18);
+    };
+
+    list.appendChild(div);
   });
 }
