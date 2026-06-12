@@ -3,6 +3,22 @@ body {
   font-family: Arial;
 }
 
+#searchBox {
+  width: 60%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  background: #ff9900;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
 .header {
   padding: 10px;
   text-align: center;
