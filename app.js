@@ -1,58 +1,60 @@
-// 初始化地圖（預設台北）
-const map = L.map('map').setView([25.0330, 121.5654], 13);
+const map = L.map('map').setView([25.0330, 121.5654], 15);
 
-// 加入 OpenStreetMap
+// OpenStreetMap 底圖
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap'
 }).addTo(map);
 
-// 🍜 模擬台灣美食資料
-const foods = [
-  {
-    name: "永和豆漿",
-    type: "早餐",
-    lat: 25.034,
-    lng: 121.564,
-    desc: "經典蛋餅 + 豆漿"
-  },
-  {
-    name: "阿宗麵線",
-    type: "小吃",
-    lat: 25.042,
-    lng: 121.506,
-    desc: "西門町必吃麵線"
-  },
-  {
-    name: "鼎泰豐",
-    type: "小籠包",
-    lat: 25.0336,
-    lng: 121.5645,
-    desc: "世界知名小籠包"
-  }
-];
-
-// 顯示美食 marker
-foods.forEach(food => {
-  const marker = L.marker([food.lat, food.lng]).addTo(map);
-
-  marker.bindPopup(`
-    <b>${food.name}</b><br/>
-    類型：${food.type}<br/>
-    ${food.desc}
-  `);
-});
+let markers = [];
 
 // 📍 使用者定位
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition((pos) => {
-    const userLat = pos.coords.latitude;
-    const userLng = pos.coords.longitude;
+navigator.geolocation.getCurrentPosition(async (pos) => {
+  const lat = pos.coords.latitude;
+  const lng = pos.coords.longitude;
 
-    L.marker([userLat, userLng])
-      .addTo(map)
-      .bindPopup("📍 你的位置")
-      .openPopup();
+  map.setView([lat, lng], 16);
 
-    map.setView([userLat, userLng], 15);
+  L.marker([lat, lng])
+    .addTo(map)
+    .bindPopup("📍 你的位置");
+
+  await loadRestaurants(lat, lng);
+});
+
+// 🍜 用 Overpass API 抓餐廳
+async function loadRestaurants(lat, lng) {
+
+  const query = `
+  [out:json];
+  (
+    node["amenity"="restaurant"](around:1000,${lat},${lng});
+    node["amenity"="cafe"](around:1000,${lat},${lng});
+    node["amenity"="fast_food"](around:1000,${lat},${lng});
+  );
+  out;
+  `;
+
+  const url = "https://overpass-api.de/api/interpreter";
+
+  const res = await fetch(url, {
+    method: "POST",
+    body: query
+  });
+
+  const data = await res.json();
+
+  data.elements.forEach(el => {
+    if (!el.lat || !el.lon) return;
+
+    const name = el.tags?.name || "未知餐廳";
+
+    const marker = L.marker([el.lat, el.lon]).addTo(map);
+
+    marker.bindPopup(`
+      <b>${name}</b><br/>
+      類型：${el.tags?.amenity || "restaurant"}
+    `);
+
+    markers.push(marker);
   });
 }
