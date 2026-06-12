@@ -24,6 +24,21 @@ navigator.geolocation.getCurrentPosition(async (pos) => {
   await loadRestaurants();
 });
 
+function toggleFavorite(place) {
+  const index = favorites.findIndex(f => f.name === place.name);
+
+  if (index > -1) {
+    favorites.splice(index, 1);
+  } else {
+    favorites.push(place);
+  }
+
+  localStorage.setItem("favorites", JSON.stringify(favorites));
+
+  renderFavorites();
+  loadRestaurants(); // 重新刷新 UI
+}
+
 // 🔍 搜尋
 async function searchFood() {
   await loadRestaurants();
